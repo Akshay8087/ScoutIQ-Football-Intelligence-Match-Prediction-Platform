@@ -1,4 +1,3 @@
-# ScoutIQ-Football-Intelligence-Match-Prediction-Platform
 <div align="center">
 
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=210&color=0:020617,35:00E676,70:2979FF,100:7C3AED&text=ScoutIQ&fontSize=72&fontColor=FFFFFF&fontAlignY=38&desc=Football%20Intelligence%20%7C%20Match%20Win%20Prediction%20%7C%20Production%20ML%20Platform&descSize=18&descAlignY=60&animation=fadeIn" alt="ScoutIQ banner" />
@@ -151,6 +150,11 @@ ScoutIQ is designed like a football intelligence SaaS product, not just a static
 
 > **All visuals below are exported directly from the project notebooks** so the repository feels more credible, analytical, and presentation-ready on GitHub.
 
+
+### How to read these visuals
+
+Each chart in the README is not added only for decoration. Every visual is connected to a real data science decision: cleaning quality, target balance, feature usefulness, football domain understanding, model selection, and explainability. This makes the project look more practical because recruiters can understand **what the graph means**, **why it matters**, and **how it supports the final ML system**.
+
 ### 1) Data Understanding & Cleaning Visuals
 
 <table>
@@ -171,6 +175,17 @@ ScoutIQ is designed like a football intelligence SaaS product, not just a static
 </td>
 </tr>
 </table>
+
+
+#### Practical interpretation
+
+| Visual | What it explains | Why it matters in the project |
+|---|---|---|
+| Missing Value Audit | Shows which columns contain missing data and how severe the missingness is. | Helps decide whether to impute, drop, or validate features before training. This is important because model predictions become unreliable when missing values are handled randomly. |
+| Target Distribution | Shows the balance between win and non-win outcomes. | Helps identify whether the classification problem is balanced or biased. If one class dominates, accuracy alone becomes misleading, so ROC-AUC, F1, MCC, and calibration become more important. |
+| Engineered Feature Review | Shows the distribution of newly created football intelligence indicators. | Validates whether domain features such as performance index, shot quality, dominance score, and defensive solidity create useful variation for the model. |
+
+**Key takeaway:** the cleaning notebook proves that the raw data was not blindly passed into ML. The dataset was audited, validated, transformed, and checked before model development.
 
 ### 2) Advanced EDA & Football Intelligence Visuals
 
@@ -202,6 +217,19 @@ ScoutIQ is designed like a football intelligence SaaS product, not just a static
 </td>
 </tr>
 </table>
+
+
+#### Practical interpretation
+
+| Visual | What it explains | Practical football insight |
+|---|---|---|
+| Executive KPI Board | Gives a quick summary of records, teams, confederations, target rate, and important numeric indicators. | Makes the notebook look like a real analytics report instead of only code output. |
+| Correlation Heatmap | Shows linear relationships between ranking, form, value, attacking metrics, defensive metrics, and the winner target. | Helps identify which features move together and which features may carry predictive signal. |
+| Confederation Dashboard | Compares average performance indicators across football confederations. | Helps understand regional football patterns and whether confederation context can influence team strength. |
+| Quadrant Analysis | Segments teams by market value and win-rate profile. | Useful for scouting because it separates high-value strong teams, low-value overperformers, and underperforming expensive teams. |
+| PCA Visualisation | Compresses many numeric features into 2D and 3D views. | Helps detect hidden structure, clusters, overlap, and whether winners/non-winners are easily separable in feature space. |
+
+**Key takeaway:** the EDA does not only describe the data; it builds football intelligence. It explains team strength, market efficiency, tactical profile, and feature relationships before machine learning.
 
 ### 3) Model Development & Evaluation Visuals
 
@@ -237,6 +265,313 @@ ScoutIQ is designed like a football intelligence SaaS product, not just a static
 </td>
 </tr>
 </table>
+
+---
+
+
+## 🔍 One-by-One Graph Insights
+
+This section explains every important graph like a real analytics case study. Each visual is described with four practical angles: **what the graph shows**, **what insight it gives**, **why it matters**, and **what action it supports**.
+
+---
+
+### 1. Missing Value Audit
+
+<p align="center">
+  <img src="assets/readme/data_quality_missing_values.png" alt="Missing Value Audit" width="95%" />
+</p>
+
+#### What this graph shows
+This graph checks every column and displays the percentage of missing values. It is the first quality-control step before EDA, feature engineering, or model training.
+
+#### Insight
+The graph helps confirm whether the dataset is clean enough for machine learning or whether some columns need imputation, removal, or validation.
+
+#### Why it matters
+Missing values can silently damage a machine learning pipeline. If a feature has too many missing records, the model may learn biased patterns or fail during prediction.
+
+#### Practical decision
+ScoutIQ uses this audit to support a structured preprocessing strategy instead of randomly filling missing values.
+
+---
+
+### 2. Target Distribution
+
+<p align="center">
+  <img src="assets/readme/target_distribution.png" alt="Target Distribution" width="95%" />
+</p>
+
+#### What this graph shows
+This visual explains the distribution of the target variable `winner`, showing how many rows belong to win and non-win classes.
+
+#### Insight
+It helps check whether the classification problem is balanced or imbalanced. If one class dominates, a model can appear accurate while still performing poorly on the minority class.
+
+#### Why it matters
+For match prediction, class balance affects model evaluation. Accuracy alone is not enough, so ScoutIQ also uses ROC-AUC, F1-score, MCC, Brier score, and calibration.
+
+#### Practical decision
+The graph justifies using multiple evaluation metrics instead of relying only on accuracy.
+
+---
+
+### 3. Engineered Feature Distribution
+
+<p align="center">
+  <img src="assets/readme/engineered_features_overview.png" alt="Engineered Feature Distribution" width="95%" />
+</p>
+
+#### What this graph shows
+This graph visualises the distribution of newly engineered football intelligence features such as performance index, shot quality, dominance score, defensive solidity, and market-value transformations.
+
+#### Insight
+The visual checks whether engineered features contain useful spread and variation. A good feature should separate teams meaningfully rather than showing almost the same value for every record.
+
+#### Why it matters
+Feature engineering is where domain knowledge enters the model. Raw FIFA-style fields become more useful when converted into football-specific indicators.
+
+#### Practical decision
+These distributions help validate whether the engineered features are suitable for model training.
+
+---
+
+### 4. Executive KPI Board
+
+<p align="center">
+  <img src="assets/readme/executive_kpi_board.png" alt="Executive KPI Board" width="95%" />
+</p>
+
+#### What this graph shows
+The KPI board gives a fast overview of the dataset and project health: number of records, unique teams, confederations, missing values, average rating, market value, win rate, and other high-level indicators.
+
+#### Insight
+It works like a sports analytics dashboard. A stakeholder can understand the dataset scale and quality without reading code.
+
+#### Why it matters
+Professional projects should not only train models. They should communicate the business and analytical context clearly.
+
+#### Practical decision
+This graph makes the notebook presentation-ready and helps recruiters quickly understand project coverage.
+
+---
+
+### 5. Distribution Grid
+
+<p align="center">
+  <img src="assets/readme/correlation_heatmap.png" alt="Correlation Heatmap" width="95%" />
+</p>
+
+#### What this graph shows
+The correlation heatmap compares relationships between numeric football features and the target.
+
+#### Insight
+It highlights which features move together. For example, ranking, rating, recent form, attacking quality, defensive strength, and market value may show useful relationships.
+
+#### Why it matters
+Highly correlated features can create redundancy, while target-related features may provide predictive signal.
+
+#### Practical decision
+This graph supports feature understanding, multicollinearity checks, and model explainability.
+
+---
+
+### 6. Confederation Dashboard
+
+<p align="center">
+  <img src="assets/readme/confederation_dashboard.png" alt="Confederation Dashboard" width="95%" />
+</p>
+
+#### What this graph shows
+This dashboard compares football confederations across multiple metrics such as win rate, average player rating, market value, tactical strength, and performance indicators.
+
+#### Insight
+It reveals whether some confederations show stronger team profiles or different football patterns.
+
+#### Why it matters
+Football performance is not only individual-team based. Regional football context can influence rankings, team value, playing style, and match outcomes.
+
+#### Practical decision
+The analysis supports using confederation-based features and gives the project stronger football-domain storytelling.
+
+---
+
+### 7. Quadrant Analysis
+
+<p align="center">
+  <img src="assets/readme/quadrant_analysis.png" alt="Quadrant Analysis" width="95%" />
+</p>
+
+#### What this graph shows
+This graph places teams into quadrants based on market value and win-rate profile.
+
+#### Insight
+It helps separate teams into practical scouting groups:
+- high-value strong performers,
+- low-value overperformers,
+- expensive underperformers,
+- developing teams.
+
+#### Why it matters
+This is useful for scouting because market value alone does not always explain performance.
+
+#### Practical decision
+The graph helps identify undervalued teams and inefficient high-value teams, making the project more practical for football intelligence.
+
+---
+
+### 8. PCA Visualisation
+
+<p align="center">
+  <img src="assets/readme/pca_visualization.png" alt="PCA Visualisation" width="95%" />
+</p>
+
+#### What this graph shows
+PCA compresses many numeric features into two or three principal components so high-dimensional football data can be visualised.
+
+#### Insight
+The graph helps check whether teams naturally form clusters and whether winners and non-winners are separable in feature space.
+
+#### Why it matters
+If classes overlap heavily, the prediction problem is naturally difficult. If clusters appear, the model may capture meaningful team patterns.
+
+#### Practical decision
+PCA supports model expectation setting. It explains why football prediction is a probabilistic problem rather than a perfect classification task.
+
+---
+
+### 9. Baseline Model Comparison
+
+<p align="center">
+  <img src="assets/readme/baseline_model_comparison.png" alt="Baseline Model Comparison" width="95%" />
+</p>
+
+#### What this graph shows
+This graph compares multiple machine learning models before final tuning.
+
+#### Insight
+It shows which algorithms perform well initially and which models may overfit or underperform.
+
+#### Why it matters
+A professional ML project should not directly choose one model. It should benchmark several models and select based on evidence.
+
+#### Practical decision
+ScoutIQ uses this graph to shortlist strong candidates for tuning and final evaluation.
+
+---
+
+### 10. Hyperparameter Tuning Results
+
+<p align="center">
+  <img src="assets/readme/tuning_results.png" alt="Hyperparameter Tuning Results" width="95%" />
+</p>
+
+#### What this graph shows
+This graph compares model performance before and after hyperparameter optimisation.
+
+#### Insight
+It shows whether tuning actually improved validation performance or only increased model complexity.
+
+#### Why it matters
+Tuning is useful only when it improves generalisation. Otherwise, it may create overfitting.
+
+#### Practical decision
+The graph supports transparent model optimisation and helps justify the final model configuration.
+
+---
+
+### 11. Model Performance Heatmap
+
+<p align="center">
+  <img src="assets/readme/model_performance_heatmap.png" alt="Model Performance Heatmap" width="95%" />
+</p>
+
+#### What this graph shows
+This heatmap compares models across several metrics such as CV AUC, train AUC, accuracy, F1, MCC, balanced accuracy, log loss, and Brier score.
+
+#### Insight
+It helps detect models that look strong on training data but weaker during cross-validation.
+
+#### Why it matters
+Overfitting is common in tree-based models. A heatmap makes it easier to compare performance stability across multiple metrics.
+
+#### Practical decision
+ScoutIQ selected the final model by balancing validation performance, probability quality, and generalisation.
+
+---
+
+### 12. ROC, Precision-Recall, and Calibration Curves
+
+<p align="center">
+  <img src="assets/readme/roc_pr_calibration.png" alt="ROC PR Calibration Curves" width="95%" />
+</p>
+
+#### What this graph shows
+This visual combines three important model evaluation views:
+- ROC curve for ranking ability,
+- Precision-Recall curve for positive-class performance,
+- Calibration curve for probability reliability.
+
+#### Insight
+The model is not only judged by whether it predicts win or non-win. It is also judged by how reliable its predicted probabilities are.
+
+#### Why it matters
+The Flask app displays win probability. That means probability calibration is important for user trust.
+
+#### Practical decision
+This graph supports using the model as a probability predictor, not just a class label generator.
+
+---
+
+### 13. Feature Importance
+
+<p align="center">
+  <img src="assets/readme/feature_importance_tree_models.png" alt="Feature Importance" width="95%" />
+</p>
+
+#### What this graph shows
+This visual ranks the most important features used by tree-based models.
+
+#### Insight
+It shows which football indicators have the strongest influence on prediction, such as recent form, ranking, market value, attacking strength, defensive solidity, or possession-related metrics.
+
+#### Why it matters
+Feature importance makes the model easier to explain to football analysts and non-technical users.
+
+#### Practical decision
+This graph supports model interpretability and helps convert model output into football reasoning.
+
+---
+
+### 14. SHAP Explainability Summary
+
+<p align="center">
+  <img src="assets/readme/shap_summary.png" alt="SHAP Explainability Summary" width="95%" />
+</p>
+
+#### What this graph shows
+SHAP explains how individual features push predictions toward win or non-win outcomes.
+
+#### Insight
+Unlike basic feature importance, SHAP shows both direction and impact. It helps understand whether high or low feature values increase win probability.
+
+#### Why it matters
+Explainability is important when predictions are shown to users. Users should understand why a team receives a higher or lower probability.
+
+#### Practical decision
+SHAP makes ScoutIQ more transparent and portfolio-ready because it connects machine learning output with practical football interpretation.
+
+---
+
+### Final graph insight summary
+
+The graphs prove that ScoutIQ is not just a model-building project. It follows a complete analytical workflow:
+
+```text
+Data Quality → Target Understanding → Feature Engineering → Football EDA
+→ Model Benchmarking → Tuning → Evaluation → Explainability → Flask Deployment
+```
+
+This makes the project stronger for GitHub because every visual has a clear purpose and supports a real decision in the data science lifecycle.
 
 ---
 
@@ -545,6 +880,22 @@ Although tree-based models achieved higher training scores, their train metrics 
 
 
 ### Model evaluation visuals
+
+### Model graph explanations
+
+| Graph | Explanation | Practical model decision |
+|---|---|---|
+| **Baseline Model Comparison** | Compares Logistic Regression, Random Forest, Extra Trees, Gradient Boosting, XGBoost, and LightGBM before final selection. | Shows whether a simple model or complex model generalises better. |
+| **Tuning Gain Chart** | Compares tuned AUC scores and improvement after hyperparameter search. | Confirms whether optimisation actually improved the model. |
+| **Performance Heatmap** | Places multiple metrics side-by-side: CV AUC, train AUC, accuracy, F1, MCC, balanced accuracy, log loss, and Brier score. | Helps detect overfitting when train score is high but validation score is lower. |
+| **ROC Curve** | Shows how well the model separates winners from non-winners across thresholds. | Useful for judging ranking performance independent of one fixed threshold. |
+| **Precision-Recall Curve** | Focuses on positive-class prediction quality. | Useful when win prediction quality matters more than overall accuracy. |
+| **Calibration Curve** | Compares predicted probabilities against actual outcomes. | Critical because the Flask app displays win probability, so probabilities should be meaningful. |
+| **Confusion Matrix** | Shows correct and incorrect predictions at a selected threshold. | Helps understand practical mistakes, not just scores. |
+| **Probability Distribution** | Shows how confident the model is across samples. | Helps decide whether predictions are too uncertain or too extreme. |
+| **Learning Curves** | Compares training and validation performance as data size increases. | Helps diagnose bias, variance, and whether more data could improve performance. |
+| **Feature Importance + SHAP** | Explains which inputs drive model output globally. | Makes the model explainable for football analysts, recruiters, and non-technical stakeholders. |
+
 
 <p align="center">
   <img src="assets/readme/baseline_model_comparison.png" alt="Baseline Model Comparison" width="95%" />
