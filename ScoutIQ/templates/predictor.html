@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% block title %}ML Predictor{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a><span class="sep">/</span><span>Predictor</span></div>
+    <h1>Match Win Predictor <span class="nav-badge">ML</span></h1>
+    <p class="text-muted">Enter team attributes to estimate win probability using our trained machine learning model</p>
+  </div>
+</div>
+
+<div class="container section">
+
+  {% if not model_loaded %}
+  <div class="alert alert-warning mb-3">
+    <i class="fa fa-triangle-exclamation"></i>
+    Model not loaded. Run <code>python src/model_training.py</code> first, then restart Flask.
+  </div>
+  {% endif %}
+
+  <div class="grid-2" style="gap:2rem;align-items:start;">
+
+    <!-- Input Form -->
+    <div>
+      <div class="section-header">
+        <div class="section-eyebrow">Team Attributes</div>
+        <h3>Enter Match Parameters</h3>
+        <p class="text-muted">All fields required. Use real or hypothetical team stats.</p>
+      </div>
+
+      <div class="card">
+        <!-- Section: Identity -->
+        <div style="margin-bottom:1.25rem;">
+          <div class="card-title mb-2">🌍 Team Identity</div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group">
+              <label class="form-label">Confederation</label>
+              <select id="confederation" class="form-control">
+                {% for c in confederations %}
+                <option value="{{ c }}" {% if c == 'UEFA' %}selected{% endif %}>{{ c }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">FIFA Rank</label>
+              <input type="number" id="fifa_rank" class="form-control" value="15" min="1" max="200">
+              <div class="input-hint">Lower = Better (1 = World #1)</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">FIFA Points</label>
+            <input type="number" id="fifa_points" class="form-control" value="1700" step="0.1">
+            <div class="input-hint">Typical range: 1400 – 2000</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Section: Recent Form -->
+        <div style="margin-bottom:1.25rem;">
+          <div class="card-title mb-2">📈 Recent Form (Last 10 Matches)</div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+            <div class="form-group">
+              <label class="form-label">Wins</label>
+              <input type="number" id="wins_last_10_matches" class="form-control" value="6" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Losses</label>
+              <input type="number" id="losses_last_10_matches" class="form-control" value="2" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Draws</label>
+              <input type="number" id="draws_last_10_matches" class="form-control" value="2" min="0" max="10">
+            </div>
+          </div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group">
+              <label class="form-label">Win Rate (Last Year)</label>
+              <input type="number" id="win_rate_last_year" class="form-control" value="0.60" step="0.01" min="0" max="1">
+              <div class="input-hint">0.0 – 1.0</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Recent Form Score</label>
+              <input type="number" id="recent_form_score" class="form-control" value="7.0" step="0.1" min="0" max="10">
+              <div class="input-hint">0 – 10 scale</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Section: Attack/Defence -->
+        <div style="margin-bottom:1.25rem;">
+          <div class="card-title mb-2">⚽ Attack & Defence</div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group">
+              <label class="form-label">Avg Goals Scored</label>
+              <input type="number" id="goals_scored_avg" class="form-control" value="1.8" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Avg Goals Conceded</label>
+              <input type="number" id="goals_conceded_avg" class="form-control" value="0.9" step="0.01">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Clean Sheets (Last 10)</label>
+              <input type="number" id="clean_sheets_last_10" class="form-control" value="4" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shots Per Game</label>
+              <input type="number" id="shots_per_game" class="form-control" value="14.5" step="0.1">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Shots on Target Ratio</label>
+            <input type="number" id="shots_on_target_ratio" class="form-control" value="0.42" step="0.01" min="0" max="1">
+            <div class="input-hint">0.0 – 1.0 (e.g. 0.42 = 42%)</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Section: Squad -->
+        <div style="margin-bottom:1.25rem;">
+          <div class="card-title mb-2">👥 Squad Quality</div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group">
+              <label class="form-label">Avg Player Rating</label>
+              <input type="number" id="avg_player_rating" class="form-control" value="82" step="0.1" min="60" max="99">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Star Players Count</label>
+              <input type="number" id="star_players_count" class="form-control" value="3" min="0" max="10">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Market Value (€M)</label>
+              <input type="number" id="market_value_million_eur" class="form-control" value="600" step="1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Avg International Caps</label>
+              <input type="number" id="experience_avg_caps" class="form-control" value="40" min="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Coach Experience (Years)</label>
+            <input type="number" id="coach_experience_years" class="form-control" value="10" min="0">
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Section: Tactical -->
+        <div style="margin-bottom:1.25rem;">
+          <div class="card-title mb-2">🎯 Tactical Profile</div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+            <div class="form-group">
+              <label class="form-label">Avg Possession (%)</label>
+              <input type="number" id="possession_avg" class="form-control" value="55" step="0.1" min="30" max="80">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Passing Accuracy (%)</label>
+              <input type="number" id="passing_accuracy" class="form-control" value="85" step="0.1" min="60" max="99">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Home Advantage</label>
+              <select id="host_advantage" class="form-control">
+                <option value="1">Yes – Host Nation</option>
+                <option value="0" selected>No – Away/Neutral</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Avg Travel Distance</label>
+              <input type="number" id="travel_distance_avg" class="form-control" value="7.0" step="0.1" min="0">
+              <div class="input-hint">Thousands of km</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Climate Similarity Score</label>
+            <input type="number" id="climate_similarity_score" class="form-control" value="0.60" step="0.01" min="0" max="1">
+            <div class="input-hint">0.0 (very different) – 1.0 (identical)</div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary w-full btn-lg" onclick="runPrediction()" id="predictBtn">
+          <i class="fa fa-robot"></i> Predict Win Probability
+        </button>
+      </div>
+    </div>
+
+    <!-- Results Panel -->
+    <div>
+      <div class="section-header">
+        <div class="section-eyebrow">ML Output</div>
+        <h3>Prediction Result</h3>
+      </div>
+
+      <!-- Placeholder -->
+      <div id="resultPlaceholder" class="card text-center" style="padding:3rem;">
+        <div style="font-size:4rem;margin-bottom:1rem;">🤖</div>
+        <h3 class="text-muted">Awaiting Prediction</h3>
+        <p class="text-muted text-small mt-2">Fill in the team attributes on the left and click Predict.</p>
+      </div>
+
+      <!-- Result Card (hidden until prediction) -->
+      <div id="resultCard" class="hidden">
+        <div class="card text-center mb-3" style="padding:2rem;">
+          <div id="probRing" class="prob-ring animate-glow" style="background:conic-gradient(var(--accent-green) 0deg, rgba(255,255,255,0.06) 0deg);margin-bottom:1.5rem;">
+            <div>
+              <div class="prob-value" id="probValue">—</div>
+              <div class="prob-label">Win Probability</div>
+            </div>
+          </div>
+          <div class="badge mb-2" id="verdictBadge" style="font-size:0.9rem;padding:6px 18px;">—</div>
+          <div class="text-muted text-small" id="confidenceText"></div>
+        </div>
+
+        <!-- Breakdown -->
+        <div class="card mb-3">
+          <div class="card-title mb-3">📊 Probability Breakdown</div>
+          <div style="display:grid;gap:1rem;">
+            <div>
+              <div class="flex items-center gap-2 mb-1" style="justify-content:space-between;">
+                <span class="text-small text-green font-bold">Win Probability</span>
+                <span class="text-small font-bold" id="winPct">—</span>
+              </div>
+              <div class="rating-bar"><div class="rating-fill" id="winBar" style="width:0%;background:var(--grad-green);"></div></div>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-1" style="justify-content:space-between;">
+                <span class="text-small text-red font-bold">Loss/Draw Probability</span>
+                <span class="text-small font-bold" id="lossPct">—</span>
+              </div>
+              <div class="rating-bar"><div class="rating-fill" id="lossBar" style="width:0%;background:linear-gradient(135deg,#ff1744,#ff6d00);"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Key Signals -->
+        <div class="card mb-3">
+          <div class="card-title mb-3">🔑 Key Prediction Signals</div>
+          <div id="keySignals"></div>
+        </div>
+
+        <!-- Model Disclaimer -->
+        <div class="alert alert-info">
+          <i class="fa fa-circle-info"></i>
+          <div>
+            <strong>Model Guidance:</strong> This prediction is based on historical statistical patterns. Real match outcomes also depend on tactical decisions, individual moments, referee calls, and many unquantifiable factors. Use as decision support, not certainty.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Example Presets -->
+  <div class="mt-4">
+    <div class="section-header">
+      <div class="section-eyebrow">Quick Presets</div>
+      <h3>Try a Known Team Profile</h3>
+    </div>
+    <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+      <button class="btn btn-ghost btn-sm" onclick="loadPreset('elite')">🇧🇷 Elite Favourite</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadPreset('mid')">🇵🇱 Mid-Table Side</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadPreset('underdog')">🇸🇳 Underdog</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadPreset('host')">🏠 Home Nation</button>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const PRESETS = {
+  elite:    { confederation:'CONMEBOL', fifa_rank:3, fifa_points:1900, wins_last_10_matches:8, losses_last_10_matches:1, draws_last_10_matches:1, win_rate_last_year:0.80, recent_form_score:9.0, goals_scored_avg:2.5, goals_conceded_avg:0.6, clean_sheets_last_10:6, shots_per_game:18, shots_on_target_ratio:0.50, avg_player_rating:88, star_players_count:5, market_value_million_eur:1100, experience_avg_caps:55, coach_experience_years:20, possession_avg:62, passing_accuracy:90, host_advantage:0, travel_distance_avg:6.5, climate_similarity_score:0.75 },
+  mid:      { confederation:'UEFA', fifa_rank:22, fifa_points:1640, wins_last_10_matches:4, losses_last_10_matches:4, draws_last_10_matches:2, win_rate_last_year:0.45, recent_form_score:5.5, goals_scored_avg:1.2, goals_conceded_avg:1.1, clean_sheets_last_10:2, shots_per_game:11, shots_on_target_ratio:0.34, avg_player_rating:76, star_players_count:2, market_value_million_eur:280, experience_avg_caps:30, coach_experience_years:7, possession_avg:48, passing_accuracy:78, host_advantage:0, travel_distance_avg:7.5, climate_similarity_score:0.55 },
+  underdog: { confederation:'CAF', fifa_rank:35, fifa_points:1500, wins_last_10_matches:3, losses_last_10_matches:5, draws_last_10_matches:2, win_rate_last_year:0.35, recent_form_score:4.0, goals_scored_avg:0.9, goals_conceded_avg:1.4, clean_sheets_last_10:1, shots_per_game:9, shots_on_target_ratio:0.28, avg_player_rating:72, star_players_count:1, market_value_million_eur:220, experience_avg_caps:22, coach_experience_years:4, possession_avg:44, passing_accuracy:73, host_advantage:0, travel_distance_avg:9.0, climate_similarity_score:0.40 },
+  host:     { confederation:'UEFA', fifa_rank:12, fifa_points:1720, wins_last_10_matches:7, losses_last_10_matches:2, draws_last_10_matches:1, win_rate_last_year:0.65, recent_form_score:8.0, goals_scored_avg:2.0, goals_conceded_avg:0.8, clean_sheets_last_10:5, shots_per_game:15, shots_on_target_ratio:0.45, avg_player_rating:83, star_players_count:4, market_value_million_eur:750, experience_avg_caps:42, coach_experience_years:14, possession_avg:58, passing_accuracy:87, host_advantage:1, travel_distance_avg:1.0, climate_similarity_score:0.95 },
+};
+
+function loadPreset(name) {
+  const p = PRESETS[name];
+  Object.keys(p).forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.value = p[k];
+  });
+  runPrediction();
+}
+
+function collectInputs() {
+  const fields = ['confederation','fifa_rank','fifa_points','wins_last_10_matches',
+    'losses_last_10_matches','draws_last_10_matches','win_rate_last_year',
+    'goals_scored_avg','goals_conceded_avg','clean_sheets_last_10','shots_per_game',
+    'shots_on_target_ratio','avg_player_rating','star_players_count',
+    'market_value_million_eur','experience_avg_caps','coach_experience_years',
+    'recent_form_score','possession_avg','passing_accuracy','host_advantage',
+    'travel_distance_avg','climate_similarity_score'];
+  const data = {};
+  for (const f of fields) {
+    const el = document.getElementById(f);
+    if (!el) continue;
+    data[f] = el.tagName === 'SELECT' ? el.value : parseFloat(el.value) || 0;
+  }
+  return data;
+}
+
+function runPrediction() {
+  const btn = document.getElementById('predictBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;"></div> Predicting…';
+
+  fetch('/api/predict', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(collectInputs())
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.status !== 'ok') { alert('Error: ' + data.error); return; }
+    renderResult(data.result);
+  })
+  .catch(e => alert('Request failed: ' + e.message))
+  .finally(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa fa-robot"></i> Predict Win Probability';
+  });
+}
+
+function renderResult(r) {
+  document.getElementById('resultPlaceholder').classList.add('hidden');
+  document.getElementById('resultCard').classList.remove('hidden');
+
+  const pct = r.probability_pct;
+  document.getElementById('probValue').textContent = pct + '%';
+  document.getElementById('probValue').style.color = r.color;
+
+  // Conic gradient ring
+  const deg = (pct / 100 * 360).toFixed(1);
+  document.getElementById('probRing').style.background =
+    `conic-gradient(${r.color} ${deg}deg, rgba(255,255,255,0.06) ${deg}deg)`;
+
+  const badge = document.getElementById('verdictBadge');
+  badge.textContent = r.verdict;
+  badge.style.background = r.color + '22';
+  badge.style.color = r.color;
+
+  document.getElementById('confidenceText').textContent = `Confidence: ${r.confidence}`;
+  document.getElementById('winPct').textContent = pct + '%';
+  document.getElementById('lossPct').textContent = r.loss_probability_pct + '%';
+  document.getElementById('winBar').style.width = pct + '%';
+  document.getElementById('lossBar').style.width = r.loss_probability_pct + '%';
+
+  // Key signals
+  const inp = collectInputs();
+  const signals = [
+    { label: 'FIFA Rank', val: `#${inp.fifa_rank}`, good: inp.fifa_rank <= 15 },
+    { label: 'Player Rating', val: inp.avg_player_rating, good: inp.avg_player_rating >= 80 },
+    { label: 'Recent Form', val: inp.recent_form_score + '/10', good: inp.recent_form_score >= 7 },
+    { label: 'Win Rate', val: (inp.win_rate_last_year*100).toFixed(1)+'%', good: inp.win_rate_last_year >= 0.55 },
+    { label: 'Home Advantage', val: inp.host_advantage ? 'Yes ✓' : 'No', good: !!inp.host_advantage },
+    { label: 'Market Value', val: '€'+inp.market_value_million_eur+'M', good: inp.market_value_million_eur >= 500 },
+  ];
+  document.getElementById('keySignals').innerHTML = signals.map(s => `
+    <div class="metric-row" style="grid-template-columns:1fr auto;">
+      <span class="text-small">${s.label}</span>
+      <span class="text-small font-bold" style="color:${s.good?'var(--accent-green)':'var(--text-secondary)'}">${s.val}</span>
+    </div>
+  `).join('');
+}
+</script>
+{% endblock %}

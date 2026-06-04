@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+{% block title %}Team Explorer{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a><span class="sep">/</span><span>Explorer</span></div>
+    <h1>Team Explorer</h1>
+    <p class="text-muted">Filter, search and analyse all football teams in the dataset</p>
+  </div>
+</div>
+
+<div class="container section">
+
+  <!-- Filters -->
+  <div class="card mb-3">
+    <div class="form-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;align-items:end;">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Search Team</label>
+        <input type="text" id="searchInput" class="form-control" placeholder="e.g. Brazil, France…">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Confederation</label>
+        <select id="confFilter" class="form-control">
+          <option value="">All Confederations</option>
+          {% for c in confederations %}
+          <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Min Player Rating</label>
+        <input type="number" id="minRating" class="form-control" placeholder="e.g. 80" min="0" max="99" step="1">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Max FIFA Rank</label>
+        <input type="number" id="maxRank" class="form-control" placeholder="e.g. 20" min="1" max="100">
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">Sort By</label>
+        <select id="sortBy" class="form-control">
+          <option value="avg_player_rating">Player Rating</option>
+          <option value="market_value_million_eur">Market Value</option>
+          <option value="win_rate_last_year">Win Rate</option>
+          <option value="recent_form_score">Form Score</option>
+          <option value="fifa_rank">FIFA Rank</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;align-items:flex-end;padding-top:1.5rem;">
+        <button class="btn btn-primary w-full" onclick="loadTeams(1)">
+          <i class="fa fa-search"></i> Filter
+        </button>
+        <button class="btn btn-ghost" onclick="resetFilters()">
+          <i class="fa fa-rotate"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Summary -->
+  <div class="flex items-center gap-2 mb-3" style="justify-content:space-between;">
+    <div id="resultSummary" class="text-muted text-small">Loading…</div>
+    <div class="flex gap-1">
+      <button class="btn btn-ghost btn-sm" onclick="setView('table')" id="viewTable">
+        <i class="fa fa-table"></i>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="setView('grid')" id="viewGrid">
+        <i class="fa fa-grip"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table View -->
+  <div id="tableView">
+    <div class="table-wrapper" style="position:relative;">
+      <div id="tableLoading" class="loading-overlay hidden"><div class="spinner"></div></div>
+      <table class="data-table" id="teamsTable">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Conf.</th>
+            <th>FIFA Rank</th>
+            <th>Rating</th>
+            <th>Stars</th>
+            <th>Market Value</th>
+            <th>Win Rate</th>
+            <th>Form</th>
+            <th>Goals</th>
+            <th>Possession</th>
+            <th>Pass Acc.</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody id="teamsBody">
+          <tr><td colspan="12" class="text-center text-muted" style="padding:3rem;">Loading teams…</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- Pagination -->
+    <div id="pagination" class="pagination"></div>
+  </div>
+
+  <!-- Grid View -->
+  <div id="gridView" class="hidden">
+    <div id="teamCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;"></div>
+    <div id="paginationGrid" class="pagination"></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let currentPage = 1;
+let currentView = 'table';
+const CONF_BADGE = { UEFA:'blue', CONMEBOL:'green', CAF:'gold', CONCACAF:'cyan', AFC:'muted', OFC:'muted' };
+
+function loadTeams(page = 1) {
+  currentPage = page;
+  const params = new URLSearchParams({
+    search: document.getElementById('searchInput').value,
+    confederation: document.getElementById('confFilter').value,
+    min_rating: document.getElementById('minRating').value || 0,
+    max_rank: document.getElementById('maxRank').value || 9999,
+    sort_by: document.getElementById('sortBy').value,
+    page,
+    per_page: 20
+  });
+
+  document.getElementById('tableLoading')?.classList.remove('hidden');
+
+  fetch('/api/players?' + params)
+    .then(r => r.json())
+    .then(data => {
+      if (data.status !== 'ok') { showError(data.error); return; }
+      document.getElementById('resultSummary').textContent =
+        `Showing ${data.data.length} of ${data.total} teams`;
+      renderTable(data.data);
+      renderGrid(data.data);
+      renderPagination(data.page, data.pages, data.total);
+    })
+    .catch(e => showError(e.message))
+    .finally(() => document.getElementById('tableLoading')?.classList.add('hidden'));
+}
+
+function renderTable(rows) {
+  const tbody = document.getElementById('teamsBody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="12" class="text-center text-muted" style="padding:3rem;">No teams match your filters.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(t => `
+    <tr>
+      <td class="font-bold">${t.team_name}</td>
+      <td><span class="badge badge-${CONF_BADGE[t.confederation]||'muted'}">${t.confederation}</span></td>
+      <td class="text-muted">#${t.fifa_rank}</td>
+      <td><span style="color:${t.avg_player_rating>=85?'var(--accent-green)':t.avg_player_rating>=75?'var(--text-primary)':'var(--text-secondary)'}">${t.avg_player_rating}</span></td>
+      <td>${'⭐'.repeat(Math.min(t.star_players_count,5))}</td>
+      <td class="text-gold">${t.market_value_fmt}</td>
+      <td>
+        <div class="flex items-center gap-1">
+          <div class="rating-bar" style="width:60px;"><div class="rating-fill" style="width:${(t.win_rate_last_year*100).toFixed(0)}%"></div></div>
+          <span class="text-small">${(t.win_rate_last_year*100).toFixed(1)}%</span>
+        </div>
+      </td>
+      <td>${ratingBar(t.recent_form_score, 10)}</td>
+      <td>${t.goals_scored_avg?.toFixed(2) || '—'}</td>
+      <td>${t.possession_avg?.toFixed(1) || '—'}%</td>
+      <td>${t.passing_accuracy?.toFixed(1) || '—'}%</td>
+      <td><span class="badge ${t.winner==1?'badge-green':'badge-red'}">${t.winner==1?'W':'L'}</span></td>
+    </tr>
+  `).join('');
+}
+
+function renderGrid(rows) {
+  const el = document.getElementById('teamCards');
+  el.innerHTML = rows.map(t => `
+    <div class="team-card">
+      <div class="flex items-center gap-2 mb-2">
+        <div class="team-name">${t.team_name}</div>
+        <span class="badge badge-${CONF_BADGE[t.confederation]||'muted'}" style="font-size:.65rem;">${t.confederation}</span>
+      </div>
+      <div class="text-muted text-small mb-2">#${t.fifa_rank} FIFA Rank · Rating ${t.avg_player_rating}</div>
+      <div class="divider" style="margin:.75rem 0;"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+        <div><div class="text-gold text-small font-bold">${t.market_value_fmt}</div><div class="text-muted" style="font-size:.7rem;">Market Value</div></div>
+        <div><div class="text-green text-small font-bold">${(t.win_rate_last_year*100).toFixed(1)}%</div><div class="text-muted" style="font-size:.7rem;">Win Rate</div></div>
+        <div><div class="text-small font-bold">${t.goals_scored_avg?.toFixed(2)||'—'}</div><div class="text-muted" style="font-size:.7rem;">Goals/Game</div></div>
+        <div><div class="text-small font-bold">${t.possession_avg?.toFixed(1)||'—'}%</div><div class="text-muted" style="font-size:.7rem;">Possession</div></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderPagination(page, pages, total) {
+  ['pagination','paginationGrid'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el || pages <= 1) { if(el) el.innerHTML=''; return; }
+    let html = '';
+    if (page > 1) html += `<button class="page-btn" onclick="loadTeams(${page-1})"><i class="fa fa-chevron-left"></i></button>`;
+    for (let p = Math.max(1,page-2); p <= Math.min(pages,page+2); p++) {
+      html += `<button class="page-btn ${p==page?'active':''}" onclick="loadTeams(${p})">${p}</button>`;
+    }
+    if (page < pages) html += `<button class="page-btn" onclick="loadTeams(${page+1})"><i class="fa fa-chevron-right"></i></button>`;
+    html += `<span class="text-muted text-small" style="padding:0 8px;">${total} results</span>`;
+    el.innerHTML = html;
+  });
+}
+
+function ratingBar(val, max) {
+  return `<div class="flex items-center gap-1">
+    <div class="rating-bar" style="width:50px;"><div class="rating-fill" style="width:${(val/max*100).toFixed(0)}%"></div></div>
+    <span class="text-small">${val}</span>
+  </div>`;
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('tableView').classList.toggle('hidden', v !== 'table');
+  document.getElementById('gridView').classList.toggle('hidden', v !== 'grid');
+}
+
+function resetFilters() {
+  ['searchInput','minRating','maxRank'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('confFilter').value = '';
+  document.getElementById('sortBy').value = 'avg_player_rating';
+  loadTeams(1);
+}
+
+function showError(msg) {
+  document.getElementById('teamsBody').innerHTML =
+    `<tr><td colspan="12"><div class="alert alert-error"><i class="fa fa-exclamation-circle"></i> ${msg}</div></td></tr>`;
+}
+
+// Debounced search
+let searchTimer;
+document.getElementById('searchInput').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => loadTeams(1), 400);
+});
+document.getElementById('confFilter').addEventListener('change', () => loadTeams(1));
+document.getElementById('sortBy').addEventListener('change', () => loadTeams(1));
+
+loadTeams(1);
+</script>
+{% endblock %}

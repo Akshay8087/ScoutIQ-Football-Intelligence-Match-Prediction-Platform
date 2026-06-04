@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a><span class="sep">/</span><span>Dashboard</span></div>
+    <h1>Analytics Dashboard</h1>
+    <p class="text-muted">Executive overview of football team intelligence and match statistics</p>
+  </div>
+</div>
+
+<div class="container section">
+
+  <!-- KPI Cards -->
+  <div class="section-header">
+    <div class="section-eyebrow">Executive KPIs</div>
+    <h2>Platform at a Glance</h2>
+  </div>
+  <div class="kpi-grid mb-4">
+    <div class="kpi-card">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-value">{{ kpis.total_matches }}</div>
+      <div class="kpi-label">Total Match Records</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🌍</div>
+      <div class="kpi-value">{{ kpis.total_teams }}</div>
+      <div class="kpi-label">National Teams</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🏟️</div>
+      <div class="kpi-value">{{ kpis.total_confederations }}</div>
+      <div class="kpi-label">Confederations</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">⭐</div>
+      <div class="kpi-value">{{ kpis.avg_player_rating }}</div>
+      <div class="kpi-label">Avg Player Rating</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-value">{{ kpis.avg_market_value }}</div>
+      <div class="kpi-label">Avg Squad Value</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🎯</div>
+      <div class="kpi-value">{{ kpis.win_rate_avg }}%</div>
+      <div class="kpi-label">Avg Win Rate</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">⚽</div>
+      <div class="kpi-value">{{ kpis.avg_goals_scored }}</div>
+      <div class="kpi-label">Avg Goals Scored</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🛡️</div>
+      <div class="kpi-value">{{ kpis.avg_goals_conceded }}</div>
+      <div class="kpi-label">Avg Goals Conceded</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🌟</div>
+      <div class="kpi-value">{{ kpis.elite_teams }}</div>
+      <div class="kpi-label">Elite Teams (Rating ≥ 85)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🔥</div>
+      <div class="kpi-value">{{ kpis.high_form_teams }}</div>
+      <div class="kpi-label">High Form Teams</div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1 -->
+  <div class="grid-2 mb-4">
+    <div class="chart-container">
+      <div class="card-header">
+        <span class="card-title">Win Rate by Confederation</span>
+        <span class="badge badge-green">Bar Chart</span>
+      </div>
+      <canvas id="confWinChart" height="220"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="card-header">
+        <span class="card-title">Avg Market Value by Confederation</span>
+        <span class="badge badge-blue">Bar Chart</span>
+      </div>
+      <canvas id="confValueChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts Row 2 -->
+  <div class="grid-2 mb-4">
+    <div class="chart-container">
+      <div class="card-header">
+        <span class="card-title">Match Outcome Distribution</span>
+        <span class="badge badge-gold">Doughnut</span>
+      </div>
+      <canvas id="outcomeChart" height="240"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="card-header">
+        <span class="card-title">Avg Player Rating by Confederation</span>
+        <span class="badge badge-cyan">Radar</span>
+      </div>
+      <canvas id="radarChart" height="240"></canvas>
+    </div>
+  </div>
+
+  <!-- Top Teams by Win Rate -->
+  <div class="grid-2 mb-4">
+    <div>
+      <div class="section-header">
+        <div class="section-eyebrow">Top Performers</div>
+        <h3>Highest Win Rate Teams</h3>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Team</th><th>Confederation</th><th>Win Rate</th><th>Rating</th></tr></thead>
+          <tbody>
+            {% for t in top_win %}
+            <tr>
+              <td class="text-muted">{{ loop.index }}</td>
+              <td class="font-bold">{{ t.team_name }}</td>
+              <td><span class="badge badge-muted">{{ t.confederation }}</span></td>
+              <td class="text-green">{{ "%.1f"|format(t.win_rate_last_year * 100) }}%</td>
+              <td>{{ t.avg_player_rating }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-header">
+        <div class="section-eyebrow">Transfer Market</div>
+        <h3>Highest Squad Value Teams</h3>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Team</th><th>Squad Value</th><th>FIFA Rank</th></tr></thead>
+          <tbody>
+            {% for t in top_mv %}
+            <tr>
+              <td class="text-muted">{{ loop.index }}</td>
+              <td class="font-bold">{{ t.team_name }}</td>
+              <td class="text-gold">{{ t.market_value_fmt }}</td>
+              <td class="text-muted">#{{ t.fifa_rank }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confederation Summary -->
+  <div class="mb-4">
+    <div class="section-header">
+      <div class="section-eyebrow">Continental Analysis</div>
+      <h3>Confederation Intelligence Report</h3>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Confederation</th><th>Matches</th><th>Win Rate</th><th>Avg Rating</th><th>Avg Squad Value</th><th>Avg FIFA Rank</th></tr></thead>
+        <tbody>
+          {% for c in conf_summary %}
+          <tr>
+            <td class="font-bold">{{ c.confederation }}</td>
+            <td>{{ c.matches }}</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <div class="rating-bar" style="width:80px;"><div class="rating-fill" style="width:{{ c.win_rate_pct }}%"></div></div>
+                <span class="text-green text-small">{{ c.win_rate_pct }}%</span>
+              </div>
+            </td>
+            <td>{{ c.avg_rating }}</td>
+            <td class="text-gold">{{ c.avg_market_value_fmt }}</td>
+            <td class="text-muted">#{{ c.avg_fifa_rank }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Undervalued Teams -->
+  <div>
+    <div class="section-header">
+      <div class="section-eyebrow">Scouting Intelligence</div>
+      <h3>Undervalued Teams — High Performance, Lower Budget</h3>
+      <p class="text-muted">Teams with winning records and below-median market value — potential transfer value targets.</p>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Team</th><th>Confederation</th><th>Win Rate</th><th>Rating</th><th>FIFA Rank</th><th>Market Value</th><th>Form Score</th></tr></thead>
+        <tbody>
+          {% for t in undervalued %}
+          <tr>
+            <td class="font-bold">{{ t.team_name }}</td>
+            <td><span class="badge badge-muted">{{ t.confederation }}</span></td>
+            <td class="text-green">{{ "%.1f"|format(t.win_rate_last_year * 100) }}%</td>
+            <td>{{ t.avg_player_rating }}</td>
+            <td class="text-muted">#{{ t.fifa_rank }}</td>
+            <td class="text-gold">{{ t.market_value_fmt }}</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <div class="rating-bar" style="width:60px;"><div class="rating-fill" style="width:{{ (t.recent_form_score / 10 * 100)|round }}%"></div></div>
+                <span class="text-small">{{ t.recent_form_score }}</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const confData = {{ conf_summary | tojson }};
+const CONF_COLORS = {
+  'UEFA': '#2979ff', 'CONMEBOL': '#00e676', 'CAF': '#ffd600',
+  'CONCACAF': '#00e5ff', 'AFC': '#ff6d00', 'OFC': '#ff1744'
+};
+const labels  = confData.map(d => d.confederation);
+const colors  = labels.map(l => CONF_COLORS[l] || '#94a3b8');
+
+// Win Rate Chart
+new Chart(document.getElementById('confWinChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{
+      label: 'Win Rate (%)',
+      data: confData.map(d => d.win_rate_pct),
+      backgroundColor: colors.map(c => c + '33'),
+      borderColor: colors,
+      borderWidth: 2,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8' } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8' }, max: 70 }
+    }
+  }
+});
+
+// Market Value Chart
+new Chart(document.getElementById('confValueChart'), {
+  type: 'bar',
+  data: {
+    labels,
+    datasets: [{
+      label: 'Avg Market Value (€M)',
+      data: confData.map(d => +d.avg_market_value.toFixed(1)),
+      backgroundColor: colors.map(c => c + '33'),
+      borderColor: colors,
+      borderWidth: 2,
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8' } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#94a3b8' } }
+    }
+  }
+});
+
+// Outcome Doughnut
+new Chart(document.getElementById('outcomeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Wins', 'Non-Wins'],
+    datasets: [{
+      data: [{{ kpis.winners_count }}, {{ kpis.total_matches - kpis.winners_count }}],
+      backgroundColor: ['rgba(0,230,118,0.7)', 'rgba(255,255,255,0.08)'],
+      borderColor: ['#00e676', 'rgba(255,255,255,0.1)'],
+      borderWidth: 2,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: {
+      legend: { labels: { color: '#94a3b8', font: { size: 13 } } }
+    },
+    cutout: '68%',
+  }
+});
+
+// Radar Chart
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Win Rate', 'Rating', 'Goals', 'Possession', 'Passing', 'Form'],
+    datasets: confData.slice(0,4).map((c, i) => ({
+      label: c.confederation,
+      data: [
+        c.win_rate_pct,
+        c.avg_rating,
+        (c.avg_rating - 65) * 2,
+        50 + i * 2,
+        78 + i * 1.5,
+        6 + i * 0.3,
+      ],
+      borderColor: Object.values(CONF_COLORS)[i],
+      backgroundColor: Object.values(CONF_COLORS)[i] + '22',
+      pointBackgroundColor: Object.values(CONF_COLORS)[i],
+      borderWidth: 2,
+    }))
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+    scales: {
+      r: {
+        grid: { color: 'rgba(255,255,255,0.06)' },
+        ticks: { display: false },
+        pointLabels: { color: '#94a3b8', font: { size: 11 } },
+        angleLines: { color: 'rgba(255,255,255,0.06)' },
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <div class="breadcrumb"><a href="/">Home</a><span class="sep">/</span><span>About</span></div>
+    <h1>Project Story</h1>
+    <p class="text-muted">The complete data science lifecycle — from raw data to deployed intelligence</p>
+  </div>
+</div>
+
+<div class="container section">
+
+  <!-- Workflow Banner -->
+  <div class="card mb-4" style="background:linear-gradient(135deg,#0d1421,#0a1628);border-color:rgba(0,230,118,0.15);text-align:center;padding:2.5rem;">
+    <div class="section-eyebrow" style="margin-bottom:1rem;">Data Science Lifecycle</div>
+    <div style="display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:0;font-size:.78rem;font-weight:600;">
+      {% set steps = [
+        ('📥', 'Data Understanding'),
+        ('🧹', 'Quality Engineering'),
+        ('📊', 'Football EDA'),
+        ('⚙️', 'Feature Engineering'),
+        ('🤖', 'Model Development'),
+        ('🔧', 'Hyperparameter Tuning'),
+        ('💡', 'Explainable AI'),
+        ('🚀', 'Deployment'),
+      ] %}
+      {% for icon, label in steps %}
+      <div style="display:flex;align-items:center;gap:0;">
+        <div style="background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.2);padding:8px 14px;border-radius:8px;text-align:center;">
+          <div style="font-size:1.2rem;">{{ icon }}</div>
+          <div style="color:var(--text-secondary);margin-top:3px;">{{ label }}</div>
+        </div>
+        {% if not loop.last %}
+        <div style="color:rgba(0,230,118,0.4);padding:0 4px;font-size:1rem;">→</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Business Problem -->
+  <div class="grid-2 mb-4" style="align-items:start;">
+    <div>
+      <div class="section-eyebrow">01 · Business Problem</div>
+      <h2>Why This Project Exists</h2>
+      <p class="text-muted mt-2" style="line-height:1.9;">Football organisations, analysts, and fans need reliable, data-driven tools to understand which national teams are the strongest, which are underperforming relative to their resources, and what the likely outcome of a match will be.</p>
+      <p class="text-muted mt-2" style="line-height:1.9;">ScoutIQ translates raw football statistics into actionable intelligence: match win probability, squad strength comparisons, confederation benchmarking, and market value analysis.</p>
+      <div class="mt-3" style="display:flex;flex-direction:column;gap:.75rem;">
+        {% for q in [
+          'Which teams are the strongest performers?',
+          'Which teams are undervalued relative to their win rate?',
+          'Which confederations dominate international football?',
+          'What attributes most strongly predict match outcomes?',
+          'How does squad market value correlate with success?'
+        ] %}
+        <div class="flex items-center gap-2">
+          <span style="color:var(--accent-green);font-size:.9rem;">→</span>
+          <span class="text-small">{{ q }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title mb-3">📌 Project Impact</div>
+      {% for impact in [
+        ('🔍', 'Transfer Intelligence', 'Supports scouting decisions by identifying high-performing, undervalued national teams.'),
+        ('🤖', 'ML-Driven Valuation', 'Provides model-driven match win probability from squad and performance statistics.'),
+        ('📊', 'EDA Depth', 'Translates raw football data into executive-level scouting insights.'),
+        ('🏆', 'Comparative Analysis', 'Enables side-by-side benchmarking across any two international teams.'),
+        ('💡', 'Explainability', 'Feature importance analysis reveals which attributes matter most to match outcomes.'),
+      ] %}
+      <div class="flex items-center gap-3" style="margin-bottom:1rem;">
+        <div style="font-size:1.5rem;">{{ impact[0] }}</div>
+        <div>
+          <div class="font-bold text-small">{{ impact[1] }}</div>
+          <div class="text-muted" style="font-size:.78rem;">{{ impact[2] }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Data Pipeline -->
+  <div class="mb-4">
+    <div class="section-eyebrow">02 · Data Understanding & Cleaning</div>
+    <h2 class="mb-3">Data Quality Engineering</h2>
+    <div class="grid-3" style="gap:1.25rem;">
+      {% for step in [
+        ('📋', 'Initial Audit', 'Inspected dataset shape (1,000 train · 250 test), column types, missing values, duplicates, and target variable distribution.'),
+        ('🔤', 'Column Standardisation', 'All column names normalised to snake_case. Identified and removed URL/image/ID columns not useful for modelling.'),
+        ('🔢', 'Type Enforcement', 'Converted all numeric strings. Validated ranges for FIFA rank, rating, win rate, and market value fields.'),
+        ('🏷️', 'Categorical Encoding', 'One-hot encoded confederation and FIFA rank tier (Elite/Strong/Mid/Developing) for modelling compatibility.'),
+        ('❌', 'Missing Values', 'No missing values detected in the final dataset. Preprocessing pipeline includes median imputation as a safeguard.'),
+        ('⚙️', 'Feature Engineering', 'Created 10 domain-driven features including Points/Match, Goal Difference, Performance Index, Dominance Score, and Shot Quality.'),
+      ] %}
+      <div class="card">
+        <div style="font-size:1.5rem;margin-bottom:.5rem;">{{ step[0] }}</div>
+        <div class="font-bold text-small mb-1">{{ step[1] }}</div>
+        <div class="text-muted text-small">{{ step[2] }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Feature Engineering -->
+  <div class="mb-4">
+    <div class="section-eyebrow">03 · Feature Engineering</div>
+    <h2 class="mb-3">Football-Domain Feature Construction</h2>
+    <div class="table-wrapper">
+      <table class="data-table">
+        <thead><tr><th>Feature</th><th>Formula / Logic</th><th>Football Rationale</th></tr></thead>
+        <tbody>
+          {% for row in [
+            ('points_per_match_last_10', '(wins×3 + draws) / total_games', 'Reflects effective recent form using real football points system.'),
+            ('goal_difference_avg', 'goals_scored_avg − goals_conceded_avg', 'Classic football dominance indicator — positive = net attacker.'),
+            ('performance_index', 'rating×0.35 + form×3.5 + win_rate×10', 'Composite score blending quality, form, and results.'),
+            ('value_per_cap', 'market_value / experience_avg_caps', 'Squad value efficiency relative to international experience.'),
+            ('dominance_score', 'possession×0.5 + passing_accuracy×0.5', 'Technical ball-control dominance measure.'),
+            ('shot_quality', 'shots_on_target_ratio × shots_per_game', 'Effective shooting volume — quantity × accuracy.'),
+            ('defensive_solidity', 'clean_sheets_last_10 / 10', 'Normalised clean sheet rate — key defensive KPI.'),
+            ('log_market_value', 'log(1 + market_value_million_eur)', 'Log-transforms right-skewed squad value distribution.'),
+            ('rank_tier', 'Cut: Elite≤10, Strong≤20, Mid≤35, Developing>35', 'Ordinal FIFA rank grouping for categorical signal.'),
+          ] %}
+          <tr>
+            <td class="font-mono text-green text-small">{{ row[0] }}</td>
+            <td class="text-small">{{ row[1] }}</td>
+            <td class="text-muted text-small">{{ row[2] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ML Pipeline -->
+  <div class="mb-4">
+    <div class="section-eyebrow">04–06 · Machine Learning</div>
+    <h2 class="mb-3">Model Development & Tuning</h2>
+    <div class="grid-2 gap-3">
+      <div class="card">
+        <div class="card-title mb-3">Models Evaluated</div>
+        {% for m in ['Logistic Regression ★ Selected','Random Forest','Extra Trees','Gradient Boosting','XGBoost','LightGBM'] %}
+        <div class="flex items-center gap-2" style="padding:8px 0;border-bottom:1px solid var(--border);">
+          <span style="color:{{ 'var(--accent-green)' if '★' in m else 'var(--text-muted)' }}">{% if '★' in m %}★{% else %}○{% endif %}</span>
+          <span class="text-small">{{ m.replace(' ★ Selected','') }}</span>
+          {% if '★' in m %}<span class="badge badge-green" style="margin-left:auto;">Best</span>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="card">
+        <div class="card-title mb-3">Training Strategy</div>
+        {% for item in [
+          ('Cross Validation', '5-Fold Stratified K-Fold'),
+          ('Primary Metric', 'ROC-AUC (handles class imbalance)'),
+          ('Tuning Method', 'RandomizedSearchCV (30 iterations)'),
+          ('Preprocessing', 'Median Imputer + RobustScaler'),
+          ('Class Balance', '527 non-wins vs 473 wins (≈ 47/53)'),
+          ('Pipeline', 'sklearn Pipeline (no data leakage)'),
+        ] %}
+        <div class="metric-row" style="grid-template-columns:1fr 1fr;">
+          <div class="text-small text-muted">{{ item[0] }}</div>
+          <div class="text-small font-bold">{{ item[1] }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Deployment -->
+  <div class="mb-4">
+    <div class="section-eyebrow">07 · Deployment</div>
+    <h2 class="mb-3">Production Architecture</h2>
+    <div class="grid-3" style="gap:1rem;">
+      {% for item in [
+        ('🐍', 'Python 3.10+', 'Core language for all data science and web backend logic.'),
+        ('🌐', 'Flask', 'Lightweight WSGI web framework serving all HTML templates and REST APIs.'),
+        ('🤖', 'Scikit-learn', 'Full ML pipeline: preprocessing, model training, evaluation, and serialisation.'),
+        ('🐼', 'Pandas + NumPy', 'Data manipulation, feature engineering, and statistical computations.'),
+        ('📊', 'Chart.js', 'Interactive client-side charts for all dashboard visualisations.'),
+        ('💾', 'Joblib', 'Efficient model serialisation — loads the trained pipeline in under 50ms.'),
+        ('📦', 'XGBoost / LightGBM', 'High-performance gradient boosting libraries evaluated as candidates.'),
+        ('🚀', 'Gunicorn', 'Production WSGI server for Render/Railway deployment.'),
+        ('🔒', 'ENV Variables', 'API keys, secrets, and config managed via environment variables.'),
+      ] %}
+      <div class="card" style="padding:1rem;">
+        <div style="font-size:1.25rem;margin-bottom:.5rem;">{{ item[0] }}</div>
+        <div class="font-bold text-small mb-1">{{ item[1] }}</div>
+        <div class="text-muted" style="font-size:.75rem;">{{ item[2] }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Project Structure -->
+  <div class="card mb-4">
+    <div class="card-title mb-3">📁 Project Structure</div>
+    <pre style="font-family:'JetBrains Mono','Courier New',monospace;font-size:.78rem;color:var(--text-secondary);line-height:1.9;overflow-x:auto;white-space:pre;">
+<span style="color:var(--accent-green);">ScoutIQ-FIFA-Player-Intelligence/</span>
+├── <span style="color:var(--accent-cyan);">app.py</span>                    ← Flask application
+├── requirements.txt
+├── README.md
+├── Procfile / runtime.txt
+├── <span style="color:var(--accent-gold);">data/</span>
+│   ├── raw/                  ← Original CSV files
+│   └── processed/            ← Cleaned CSVs + submission
+├── <span style="color:var(--accent-gold);">notebooks/</span>
+│   ├── 01_Data_Understanding_and_Cleaning.ipynb
+│   ├── 02_Professional_EDA_and_Insights.ipynb
+│   └── 03_Model_Development_and_Evaluation.ipynb
+├── <span style="color:var(--accent-gold);">src/</span>
+│   ├── <span style="color:var(--accent-cyan);">data_preprocessing.py</span>
+│   ├── <span style="color:var(--accent-cyan);">feature_engineering.py</span>
+│   ├── <span style="color:var(--accent-cyan);">model_training.py</span>    ← Run this first
+│   ├── <span style="color:var(--accent-cyan);">prediction_pipeline.py</span>
+│   └── <span style="color:var(--accent-cyan);">utils.py</span>
+├── <span style="color:var(--accent-gold);">models/</span>
+│   ├── best_model.pkl
+│   ├── feature_columns.json
+│   ├── model_metadata.json
+│   └── model_comparison.csv
+├── <span style="color:var(--accent-gold);">static/</span>
+│   ├── css/style.css
+│   └── js/dashboard.js
+└── <span style="color:var(--accent-gold);">templates/</span>
+    ├── base.html · index.html · dashboard.html
+    ├── explorer.html · predictor.html · compare.html
+    ├── model_insights.html · about.html
+    </pre>
+  </div>
+
+  <!-- Quick Start -->
+  <div class="card">
+    <div class="card-title mb-3">⚡ Quick Start Commands</div>
+    <div style="display:flex;flex-direction:column;gap:.75rem;">
+      {% for cmd in [
+        ('# 1. Clone & setup virtual environment', ''),
+        ('git clone https://github.com/your-user/ScoutIQ-FIFA-Player-Intelligence', ''),
+        ('cd ScoutIQ-FIFA-Player-Intelligence && python -m venv venv', ''),
+        ('source venv/bin/activate  # Windows: venv\\Scripts\\activate', ''),
+        ('pip install -r requirements.txt', ''),
+        ('# 2. Train the model (creates models/*.pkl)', ''),
+        ('python src/model_training.py', ''),
+        ('# 3. Start the Flask application', ''),
+        ('python app.py', ''),
+        ('# 4. Open in browser', ''),
+        ('# http://localhost:5000', ''),
+      ] %}
+      <code style="background:rgba(0,0,0,0.4);padding:8px 14px;border-radius:6px;font-size:.8rem;color:{{ 'var(--text-muted)' if cmd[0].startswith('#') else 'var(--accent-cyan)' }};display:block;">{{ cmd[0] }}</code>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+{% endblock %}

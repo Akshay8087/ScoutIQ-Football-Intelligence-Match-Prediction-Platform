@@ -1,0 +1,74 @@
+{
+  "model_name": "Logistic Regression",
+  "problem_type": "Binary Classification",
+  "target_variable": "winner",
+  "dataset_size": 1000,
+  "n_features": 40,
+  "cv_roc_auc": 0.7161,
+  "train_roc_auc": 0.7391,
+  "train_accuracy": 0.668,
+  "train_f1": 0.6376,
+  "train_log_loss": 0.6008,
+  "best_params": {
+    "solver": "saga",
+    "penalty": "l2",
+    "class_weight": null,
+    "C": 0.1
+  },
+  "model_comparison": [
+    {
+      "Model": "Logistic Regression",
+      "CV AUC": 0.7161,
+      "Train AUC": 0.7391,
+      "Train Acc": 0.668,
+      "Train F1": 0.6376,
+      "MCC": 0.3325,
+      "Brier": 0.2067
+    },
+    {
+      "Model": "XGBoost",
+      "CV AUC": 0.7045,
+      "Train AUC": 0.8427,
+      "Train Acc": 0.771,
+      "Train F1": 0.747,
+      "MCC": 0.5405,
+      "Brier": 0.1738
+    },
+    {
+      "Model": "Extra Trees",
+      "CV AUC": 0.7021,
+      "Train AUC": 1.0,
+      "Train Acc": 1.0,
+      "Train F1": 1.0,
+      "MCC": 1.0,
+      "Brier": 0.0057
+    },
+    {
+      "Model": "Gradient Boosting",
+      "CV AUC": 0.6975,
+      "Train AUC": 0.9539,
+      "Train Acc": 0.869,
+      "Train F1": 0.859,
+      "MCC": 0.7372,
+      "Brier": 0.129
+    },
+    {
+      "Model": "Random Forest",
+      "CV AUC": 0.6952,
+      "Train AUC": 0.9999,
+      "Train Acc": 0.994,
+      "Train F1": 0.9936,
+      "MCC": 0.988,
+      "Brier": 0.0654
+    },
+    {
+      "Model": "LightGBM",
+      "CV AUC": 0.6827,
+      "Train AUC": 0.9167,
+      "Train Acc": 0.821,
+      "Train F1": 0.8069,
+      "MCC": 0.6407,
+      "Brier": 0.1474
+    }
+  ]
+}

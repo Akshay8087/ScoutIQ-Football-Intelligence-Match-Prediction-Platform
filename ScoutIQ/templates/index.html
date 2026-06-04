@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<!-- ── Hero ────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-content">
+        <div class="hero-eyebrow">
+          <i class="fa fa-bolt"></i> Football Analytics · Machine Learning · Transfer Intelligence
+        </div>
+        <h1 class="font-display">
+          Football <span class="text-gradient">Intelligence</span><br>Redefined
+        </h1>
+        <p class="hero-tagline">
+          Discover elite talent, predict match outcomes, analyse team performance, and unlock transfer-market intelligence powered by machine learning.
+        </p>
+        <div class="hero-cta">
+          <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg">
+            <i class="fa fa-chart-bar"></i> Explore Dashboard
+          </a>
+          <a href="{{ url_for('predict_page') }}" class="btn btn-secondary btn-lg">
+            <i class="fa fa-robot"></i> Try ML Predictor
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value">{{ kpis.total_matches | default('1000') }}</div>
+            <div class="hero-stat-label">Match Records</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">{{ kpis.total_teams | default('—') }}</div>
+            <div class="hero-stat-label">Teams</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value">{{ meta.cv_roc_auc | default('0.72') }}</div>
+            <div class="hero-stat-label">Model AUC</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Football Pitch Visual -->
+      <div>
+        <div class="pitch-visual">
+          <div class="pitch-lines">
+            <div class="pitch-midline"></div>
+            <div class="pitch-penalty-top"></div>
+            <div class="pitch-penalty-bottom"></div>
+          </div>
+          <div class="pitch-center-dot"></div>
+          <div class="pitch-floating-stat" style="top:12%; right:5%;">
+            <div class="val">{{ kpis.avg_player_rating | default('78.8') }}</div>
+            <div style="font-size:.72rem;color:var(--text-secondary)">Avg Rating</div>
+          </div>
+          <div class="pitch-floating-stat" style="bottom:18%; left:5%;">
+            <div class="val">{{ kpis.avg_goals_scored | default('1.47') }}</div>
+            <div style="font-size:.72rem;color:var(--text-secondary)">Avg Goals</div>
+          </div>
+          <div class="pitch-floating-stat" style="top:45%; right:3%;">
+            <div class="val">{{ kpis.win_rate_avg | default('47') }}%</div>
+            <div style="font-size:.72rem;color:var(--text-secondary)">Win Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── KPI Strip ────────────────────────────────────────────────────── -->
+<section class="section" style="padding-top:2rem;padding-bottom:2rem;background:var(--bg-secondary);">
+  <div class="container">
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon">🏆</div>
+        <div class="kpi-value">{{ kpis.total_teams | default('—') }}</div>
+        <div class="kpi-label">National Teams</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">⭐</div>
+        <div class="kpi-value">{{ kpis.avg_player_rating | default('—') }}</div>
+        <div class="kpi-label">Avg Player Rating</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">💰</div>
+        <div class="kpi-value">{{ kpis.avg_market_value | default('—') }}</div>
+        <div class="kpi-label">Avg Squad Value</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">⚽</div>
+        <div class="kpi-value">{{ kpis.avg_goals_scored | default('—') }}</div>
+        <div class="kpi-label">Avg Goals / Game</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🛡️</div>
+        <div class="kpi-value">{{ kpis.avg_goals_conceded | default('—') }}</div>
+        <div class="kpi-label">Avg Goals Conceded</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-value">{{ kpis.avg_passing_accuracy | default('—') }}%</div>
+        <div class="kpi-label">Avg Pass Accuracy</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ─────────────────────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="section-header text-center mb-4">
+      <div class="section-eyebrow">Platform Features</div>
+      <h2>Everything a Football Analyst Needs</h2>
+      <p class="text-muted" style="max-width:540px;margin:0 auto;">From raw data exploration to machine learning predictions — all in one professional analytics platform.</p>
+    </div>
+
+    <div class="grid-3" style="gap:1.5rem;">
+      <div class="card">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(0,230,118,0.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1rem;">📊</div>
+        <h3 style="margin-bottom:0.5rem;">Executive Dashboard</h3>
+        <p class="text-muted text-small">Live KPI cards, confederation analysis, market value rankings, and undervalued team discovery.</p>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-ghost btn-sm mt-2">Explore →</a>
+      </div>
+      <div class="card">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(41,121,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1rem;">🔍</div>
+        <h3 style="margin-bottom:0.5rem;">Team Explorer</h3>
+        <p class="text-muted text-small">Filter, sort, and search across all teams with advanced stat breakdowns and scouting metrics.</p>
+        <a href="{{ url_for('explorer') }}" class="btn btn-ghost btn-sm mt-2">Explore →</a>
+      </div>
+      <div class="card">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,214,0,0.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1rem;">🤖</div>
+        <h3 style="margin-bottom:0.5rem;">ML Predictor</h3>
+        <p class="text-muted text-small">Input team attributes and get an ML-powered match win probability with confidence scoring.</p>
+        <a href="{{ url_for('predict_page') }}" class="btn btn-ghost btn-sm mt-2">Predict →</a>
+      </div>
+      <div class="card">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(0,229,255,0.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1rem;">⚖️</div>
+        <h3 style="margin-bottom:0.5rem;">Team Comparison</h3>
+        <p class="text-muted text-small">Side-by-side tactical and statistical comparison of any two international teams.</p>
+        <a href="{{ url_for('compare') }}" class="btn btn-ghost btn-sm mt-2">Compare →</a>
+      </div>
+      <div class="card">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,109,0,0.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1rem;">🧠</div>
+        <h3 style="margin-bottom:0.5rem;">Model Intelligence</h3>
+        <p class="text-muted text-small">Transparent model performance metrics, feature importance, and explainable AI analysis.</p>
+        <a href="{{ url_for('model_insights') }}" class="btn btn-ghost btn-sm mt-2">Analyse →</a>
+      </div>
+      <div class="card">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(255,23,68,0.12);display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1rem;">📖</div>
+        <h3 style="margin-bottom:0.5rem;">Project Story</h3>
+        <p class="text-muted text-small">Full data science lifecycle from problem definition to deployment — built for portfolio impact.</p>
+        <a href="{{ url_for('about') }}" class="btn btn-ghost btn-sm mt-2">Read →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Model Highlight ─────────────────────────────────────────────── -->
+<section class="section" style="background:var(--bg-secondary);padding:3rem 0;">
+  <div class="container">
+    <div class="grid-2" style="gap:3rem;align-items:center;">
+      <div>
+        <div class="section-eyebrow">Machine Learning Engine</div>
+        <h2>Predict Match Outcomes with Confidence</h2>
+        <p class="text-muted mt-2" style="line-height:1.8;">
+          Six classification models trained and evaluated. Logistic Regression emerged as the top performer, achieving <strong style="color:var(--accent-green);">{{ meta.cv_roc_auc | default('0.7161') }} ROC-AUC</strong> through cross-validated hyperparameter tuning.
+        </p>
+        <p class="text-muted mt-2" style="line-height:1.8;">
+          Features include FIFA ranking, recent form, squad market value, passing accuracy, possession, and 10+ engineered football-domain metrics.
+        </p>
+        <a href="{{ url_for('model_insights') }}" class="btn btn-primary mt-3">
+          <i class="fa fa-chart-line"></i> View Model Intelligence
+        </a>
+      </div>
+      <div>
+        <div class="card" style="text-align:center;padding:2rem;">
+          <div style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:0.5rem;">Final Model</div>
+          <div class="font-display" style="font-size:1.5rem;color:var(--accent-green);margin-bottom:1.5rem;">{{ meta.model_name | default('Logistic Regression') }}</div>
+          <div class="grid-3" style="gap:1rem;">
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:1.5rem;color:var(--text-primary);">{{ meta.cv_roc_auc | default('0.716') }}</div>
+              <div class="text-small text-muted">CV ROC-AUC</div>
+            </div>
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:1.5rem;color:var(--text-primary);">{{ meta.train_accuracy | default('0.668') }}</div>
+              <div class="text-small text-muted">Accuracy</div>
+            </div>
+            <div>
+              <div style="font-family:'Orbitron',sans-serif;font-size:1.5rem;color:var(--text-primary);">{{ meta.n_features | default('40') }}</div>
+              <div class="text-small text-muted">Features</div>
+            </div>
+          </div>
+          {% if meta.model_comparison %}
+          <div class="table-wrapper mt-3">
+            <table class="data-table">
+              <thead><tr><th>Model</th><th>ROC-AUC</th><th>Accuracy</th></tr></thead>
+              <tbody>
+                {% for row in meta.model_comparison[:5] %}
+                <tr>
+                  <td>{{ row.Model }}</td>
+                  <td class="text-green">{{ "%.4f"|format(row['CV AUC']) }}</td>
+                  <td>{{ "%.4f"|format(row['Train Acc']) }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="ScoutIQ — Football Intelligence & Match Prediction Platform powered by Machine Learning"/>
+  <title>{% block title %}ScoutIQ{% endblock %} | Football Intelligence Platform</title>
+
+  <!-- Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <!-- Styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+
+<!-- ── Navigation ──────────────────────────────────────────────────── -->
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="{{ url_for('index') }}" class="nav-logo">
+      <div class="nav-logo-icon">⚽</div>
+      <span class="nav-logo-text">Scout<span>IQ</span></span>
+    </a>
+
+    <ul class="nav-links" id="navLinks">
+      <li><a href="{{ url_for('index') }}"         {% if request.endpoint == 'index' %}class="active"{% endif %}>Home</a></li>
+      <li><a href="{{ url_for('dashboard') }}"     {% if request.endpoint == 'dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+      <li><a href="{{ url_for('explorer') }}"      {% if request.endpoint == 'explorer' %}class="active"{% endif %}>Explorer</a></li>
+      <li><a href="{{ url_for('predict_page') }}"  {% if request.endpoint == 'predict_page' %}class="active"{% endif %}>Predictor <span class="nav-badge">ML</span></a></li>
+      <li><a href="{{ url_for('compare') }}"       {% if request.endpoint == 'compare' %}class="active"{% endif %}>Compare</a></li>
+      <li><a href="{{ url_for('model_insights') }}" {% if request.endpoint == 'model_insights' %}class="active"{% endif %}>Model</a></li>
+      <li><a href="{{ url_for('about') }}"         {% if request.endpoint == 'about' %}class="active"{% endif %}>About</a></li>
+    </ul>
+
+    <div class="hamburger" onclick="toggleNav()" id="hamburger">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Main Content ─────────────────────────────────────────────────── -->
+<main class="page-wrapper">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container mt-2">
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }}"><i class="fa fa-info-circle"></i> {{ msg }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── Footer ───────────────────────────────────────────────────────── -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="{{ url_for('index') }}" class="nav-logo">
+          <div class="nav-logo-icon">⚽</div>
+          <span class="nav-logo-text">Scout<span>IQ</span></span>
+        </a>
+        <p>Discover elite talent. Compare team performance. Predict match outcomes with machine learning intelligence.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Analytics</h4>
+        <ul>
+          <li><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+          <li><a href="{{ url_for('explorer') }}">Team Explorer</a></li>
+          <li><a href="{{ url_for('compare') }}">Compare Teams</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Intelligence</h4>
+        <ul>
+          <li><a href="{{ url_for('predict_page') }}">ML Predictor</a></li>
+          <li><a href="{{ url_for('model_insights') }}">Model Insights</a></li>
+          <li><a href="{{ url_for('about') }}">Project Story</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Tech Stack</h4>
+        <ul>
+          <li><a href="#">Python · Flask</a></li>
+          <li><a href="#">Scikit-learn</a></li>
+          <li><a href="#">Plotly · Pandas</a></li>
+          <li><a href="#">XGBoost · SHAP</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2024 ScoutIQ · Football Intelligence Platform</span>
+      <span>Built with ⚽ &amp; Machine Learning</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+function toggleNav() {
+  document.getElementById('navLinks').classList.toggle('open');
+}
+// Animate KPI values on load
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.kpi-card').forEach((el, i) => {
+    el.style.animationDelay = `${i * 0.06}s`;
+    el.classList.add('animate-fade-up');
+  });
+});
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
