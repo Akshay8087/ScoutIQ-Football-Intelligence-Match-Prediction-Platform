@@ -1,3 +1,4 @@
+<img width="1917" height="1077" alt="Image" src="https://github.com/user-attachments/assets/56f20215-abab-477f-b975-0d8ef636def8" />
 <div align="center">
 
 <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&height=210&color=0:020617,35:00E676,70:2979FF,100:7C3AED&text=ScoutIQ&fontSize=72&fontColor=FFFFFF&fontAlignY=38&desc=Football%20Intelligence%20%7C%20Match%20Win%20Prediction%20%7C%20Production%20ML%20Platform&descSize=18&descAlignY=60&animation=fadeIn" alt="ScoutIQ banner" />
